@@ -4,6 +4,7 @@ from tkinter import *
 from tkinter.ttk import Combobox
 from tkinter import messagebox
 from tkinter.scrolledtext import ScrolledText
+from tkinter import filedialog
 
 
 class Window:
@@ -48,6 +49,7 @@ class Window:
 
         file_menu = Menu(menu_bar, tearoff=0)
         file_menu.add_command(label='Open file', command=self.cmd_open_file)
+        file_menu.add_command(label='Open files', command=self.cmd_open_files)
         file_menu.add_command(label='Open folder', command=self.cmd_open_folder)
         file_menu.add_separator()
         file_menu.add_command(label='Save', command=self.cmd_save)
@@ -80,16 +82,62 @@ class Window:
         self.root.configure(menu=menu_bar)
     
     def cmd_open_file(self):
-        pass
+        wanted_files = (
+            ("IMAGES", "*.jpeg;*.jpg;*.png;*.gif"),
+            ("TEXT files", "*.txt;*.log;*.json"),
+            ("PYTHON files", "*.py"),
+            ("ALL", "*.*")
+        )
+
+        # file_name = filedialog.askopenfilename()
+        # file_name = filedialog.askopenfilename(initialdir='D:/', title="Find a file", filetypes=wanted_files)
+        # self.scrolled_text.insert(END, f'Надо открыть файл: {file_name}\nСодержимое:\n')
+        # if file_name:
+        #     with open(file_name, "r") as file:
+        #         self.scrolled_text.insert(END, file.read())
+
+        file_name = filedialog.askopenfile(initialdir='D:/', title="Find a file", filetypes=wanted_files)
+        if file_name:
+            self.scrolled_text.insert(END, file_name.read())
+            file_name.close()
+        
+    def cmd_open_files(self):
+        wanted_files = (
+            ("TEXT files", "*.txt;*.log"),
+            ("PYTHON files", "*.py"),
+            ("IMAGES", "*.jpeg;*.jpg;*.png;*.gif"),
+            ("ALL", "*.*")
+        )
+
+        # file_name = filedialog.askopenfilename()
+        # file_name = filedialog.askopenfilename(initialdir='D:/', title="Find a file", filetypes=wanted_files)
+        # self.scrolled_text.insert(END, f'Надо открыть файл: {file_name}\nСодержимое:\n')
+        # if file_name:
+        #     with open(file_name, "r") as file:
+        #         self.scrolled_text.insert(END, file.read())
+
+        # file_name = filedialog.askopenfile()
+        # if file_name:
+        #     self.scrolled_text.insert(END, file_name.read())
+        #     file_name.close()
+
+        file_names = filedialog.askopenfilenames(initialdir='D:/', title="Find a file", filetypes=wanted_files)
+        self.scrolled_text.insert(END, str(file_names))
+        
 
     def cmd_open_folder(self):
-        pass
+        file_names = filedialog.askdirectory(mustexist=True)
+        self.scrolled_text.insert(END, file_names)
 
     def cmd_save(self):
         pass
 
     def cmd_save_as(self):
-        pass
+        file_name = filedialog.asksaveasfilename(filetypes=(("TEXT files", "*.txt"), ("Py files", "*.py"), ("JSON files", '*.json')))
+        if file_name:
+            # self.scrolled_text.insert(END, f'Save as {file_name}\n')
+            with open(file_name, 'w') as file:
+                file.write(self.scrolled_text.get('1.0', END))
 
     def cmd_auto_save_changed(self):
         messagebox.showinfo("Autosave", f"Value: {self.auto_save.get()}")
@@ -101,7 +149,7 @@ class Window:
 
 
     def cmd_screen_size_changed(self):
-        messagebox.showinfo("Screensize", f"Value: {self.screen_size.get()}")
+        messagebox.showinfo("Screensize", f"Value: {self.screen_size.get('1.0', END)}")
 
     def cmd_view(self):
         pass
@@ -115,63 +163,18 @@ class Window:
         # choice = messagebox.askretrycancel("Quit", "Do you want to quit?")    # Повтор/Отмена = True/False
         # choice = messagebox.askyesnocancel("Quit", "Do you want to quit?")    # Да/Нет/Отмена = True/False/None
         
-        print(f'Quit={choice}')
+        # print(f'Quit={choice}')
         if choice:
             self.root.destroy()
 
     def draw_widgets(self):
         self.draw_menu()
-        Label(self.root, text="Settings:").pack(anchor=NW)
-
-        # for i in range(20):
-        #     self.scrolled_text.insert(f'{i*3+1}.0', self.settings)
-        self.scrolled_text.insert('1.0', self.settings * 20)
-
-        # применение стилей/тегов к тексту
-        # создаём тег, называем его 'ref' (referal), применяем его к тексту с позиции '1.2' до позиции '1.10'
-        self.scrolled_text.tag_config('ref', background='blue', foreground='white', underline=1, font=('Consolas', 14), justify=CENTER, offset=8, relief=RAISED, borderwidth=2) 
-        # justify=CENTER - выравнивание строки, применяется к первому символу, например '*.0'
-        # offset=8 - сдвиг текста по вертикали вверх, >0 - вверх (степени), <0 - вниз (индексы)
-        # offset=-8 - сдвиг текста по вертикали вниз, >0 - вверх (степени), <0 - вниз (индексы)
-        # relief=RAISED,  # тип рамки
-        # borderwidth=2   # толщина рамки
-
-        self.scrolled_text.tag_add('ref', '1.0', '1.8') 
-        self.scrolled_text.insert('3.5', "REFERENCE", 'ref')
-
-        # self.scrolled_text.tag_delete('ref')                  # удаление тега
-        # self.scrolled_text.tag_remove('ref', '1.0', '1.8')    # снятие тега с текста
-
-        # self.scrolled_text.get('1.1, "1.6')     # получить текст, с позиции1 до позиции 2
-        # self.scrolled_text.delete('1.1, "1.6')  # удалить текст, с позиции1 до позиции 2
-        # self.scrolled_text.see('1.1')           # виден ли текст, return True/False
-        # self.scrolled_text.search('template')   # поиск текста по шаблону
-        # self.scrolled_text.configure(state=NORMAL)      # разрешение редактирования текстового поля 
-        self.scrolled_text.configure(state=DISABLED)    # запрет редактирования текстового поля 
-
-        # Indices (Индексы)
-        # "1.0"     # индекс строки =1, индекс столбца =0 (начало текста)
-        # "2.end"   # конец указаной строки
-        # INSERT    # вставка по курсору
-        # CURRENT   # вставка по ...
-        # END       # последний символ в тексте
-        # "tag.first", "tag.end" ("ref.start")
-        # "+ n chars" # сдвиг курсосра на n символов вправо ("+ 1 chars"), ("+3c")
-        # "- n chars" # сдвиг курсосра на n символов влево
-        # "+ n lines" # свдиг курсора на n строк вниз
-        # "- n lines" # свдиг курсора на n строк вверх  ("- 2 lines"), ("+2l")
-        # "Linestart", "Lineend" # сдвиг курсора в начало/конец текущей строки
-        # "Wordstart", "Wordend" # сдвиг курсора в начало/конец текущего слова
-
-        index = "1.0"
-        index += "+1c"  # свдиг курсора на 1 символ вправо
 
 
         self.scrolled_text.pack()
 
 
-        # Button(self.root, text="Quit", width=10, command=self.exit).pack(anchor=NW, padx=10)
-    
+
 
     def run(self):
         self.draw_widgets()             # прорисовка виджетов в окне root
@@ -179,5 +182,5 @@ class Window:
 
 
 if __name__ == "__main__":
-    window = Window("300", "300", "TestWindow", resizable=(False, False))
+    window = Window("600", "400", "TestWindow", resizable=(True, True))
     window.run()
